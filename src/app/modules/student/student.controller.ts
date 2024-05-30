@@ -1,53 +1,28 @@
-import { NextFunction, Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import { StudentServices } from './student.service';
 import sendResponse from '../../utils/sendResponse/sendResponse';
 
-const createStudent = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const getAllStudent: RequestHandler = async (req, res, next) => {
   try {
-    const result = await StudentServices.createStudentIntoDB(req.body);
+    const result = await StudentServices.getAllStudents();
 
-    sendResponse(res, result, 'Students is created succesfully');
+    sendResponse(res, result, 'Students retrieved succesfully');
   } catch (error) {
     next(error);
   }
 };
 
-const getAllStudents = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+const deleteStudent: RequestHandler = async (req, res, next) => {
   try {
-    const result = await StudentServices.getAllStudentsFromDB();
+    const result = await StudentServices.deleteStudent(req.params.studentId);
 
-    sendResponse(res, result, 'Students are retrieved succesfully');
-  } catch (err) {
-    next(err);
-  }
-};
-
-const getSingleStudent = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { studentId } = req.params;
-
-    const result = await StudentServices.getSingleStudentFromDB(studentId);
-
-    sendResponse(res, result, 'Students is retrieved succesfully');
-  } catch (err) {
-    next(err);
+    sendResponse(res, result, 'Student deleted succesfully');
+  } catch (error) {
+    next(error);
   }
 };
 
 export const StudentControllers = {
-  createStudent,
-  getAllStudents,
-  getSingleStudent,
+  getAllStudent,
+  deleteStudent,
 };

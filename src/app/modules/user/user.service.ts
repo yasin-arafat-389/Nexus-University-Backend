@@ -7,6 +7,9 @@ import { TUser } from './user.interface';
 import { TAcademicSemester } from '../academicSemeter/academicSemeter.iterface';
 import UserModel from './user.model';
 import StudentModel from '../student/student.model';
+import { TFacultyMember } from '../facultyMember/facultyMember.interface';
+import FacultyMemberModel from '../facultyMember/facultyMember.model';
+import { generateFacultyMemberId } from '../../utils/generateFacultyMemberId/generateFacultyMemberId';
 
 const createStudent = async (password: string, payload: TStudent) => {
   const userData: Partial<TUser> = {};
@@ -28,7 +31,7 @@ const createStudent = async (password: string, payload: TStudent) => {
       admissionSemester as TAcademicSemester,
     );
 
-    const newUser = await UserModel.create([userData], { session }); // array
+    const newUser = await UserModel.create([userData], { session });
 
     if (!newUser.length) {
       throw new Error('Failed to create user!');
@@ -54,6 +57,44 @@ const createStudent = async (password: string, payload: TStudent) => {
   }
 };
 
+const createFacultyMember = async (
+  password: string,
+  facultyMember: TFacultyMember,
+) => {
+  const facultyData: Partial<TUser> = {};
+
+  facultyData.password = password || (config.default_pass as string);
+
+  facultyData.role = 'faculty';
+
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    facultyData.id = await generateFacultyMemberId();
+
+    const newUser = await UserModel.create([facultyData], { session });
+
+    facultyMember.id = newUser[0].id;
+    facultyMember.user = newUser[0]._id;
+
+    const newFacultyMember = await FacultyMemberModel.create([facultyMember], {
+      session,
+    });
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return newFacultyMember;
+  } catch (err) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error('Failed to create Faculty member!!');
+  }
+};
+
 export const UserServices = {
   createStudent,
+  createFacultyMember,
 };

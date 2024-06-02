@@ -13,6 +13,21 @@ const createStudent: RequestHandler = async (req, res, next) => {
   }
 };
 
+const createFacultyMembers: RequestHandler = async (req, res, next) => {
+  try {
+    const { password, facultyMember } = req.body;
+    const result = await UserServices.createFacultyMember(
+      password,
+      facultyMember,
+    );
+
+    sendResponse(res, result, 'Faculty Member created succesfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const UserControllers = {
   createStudent,
+  createFacultyMembers,
 };

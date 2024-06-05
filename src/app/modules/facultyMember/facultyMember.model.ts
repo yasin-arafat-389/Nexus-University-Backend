@@ -3,7 +3,7 @@ import { TFacultyMember } from './facultyMember.interface';
 
 const facultyMemberSchema = new Schema<TFacultyMember>({
   id: { type: String, required: true, unique: true },
-  user: { type: 'ObjectID', required: true, ref: 'User' },
+  user: { type: 'ObjectID', required: true, ref: 'user' },
   designation: { type: String, required: true },
   name: {
     firstName: { type: String, required: true },

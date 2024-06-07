@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import mongoose from 'mongoose';
 import onFailure from '../../utils/onFailure/onFailure';
 import { TFacultyMember } from './facultyMember.interface';
 import { FacultyMemberModel } from './facultyMember.model';
+import UserModel from '../user/user.model';
 
 const GetAllFacultyMember = async () => {
   const result = await FacultyMemberModel.find()
@@ -49,15 +52,42 @@ const UpdateFacultyMember = async (
 };
 
 const DeleteFacultyMember = async (id: string) => {
-  const result = await FacultyMemberModel.findOneAndUpdate(
-    { id },
-    { isDeleted: true },
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
-  return result;
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    await FacultyMemberModel.findOneAndUpdate(
+      { id },
+      { isDeleted: true },
+      {
+        new: true,
+        session,
+        runValidators: true,
+      },
+    );
+
+    const result = await UserModel.findOneAndUpdate(
+      { id },
+      { isDeleted: true },
+      {
+        new: true,
+        session,
+        runValidators: true,
+      },
+    );
+
+    onFailure(result, 'ID not found!!');
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return result;
+  } catch (err: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error(err);
+  }
 };
 
 export const FacultyMemberServices = {

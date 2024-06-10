@@ -22,7 +22,21 @@ const deleteStudent: RequestHandler = async (req, res, next) => {
   }
 };
 
+const updateStudent: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await StudentServices.updateStudents(
+      req.params.studentId,
+      req.body,
+    );
+
+    sendResponse(res, result, 'Student updated succesfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const StudentControllers = {
   getAllStudent,
   deleteStudent,
+  updateStudent,
 };

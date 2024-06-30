@@ -10,9 +10,15 @@ const userSchema = new mongoose.Schema<TUser>(
       required: true,
       unique: true,
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     password: {
       type: String,
       required: true,
+      select: 0,
     },
     needsPasswordChange: {
       type: Boolean,
@@ -20,7 +26,7 @@ const userSchema = new mongoose.Schema<TUser>(
     },
     role: {
       type: String,
-      enum: ['admin', 'student', 'faculty'],
+      enum: ['super-admin', 'admin', 'student', 'faculty'],
       required: true,
     },
     status: {

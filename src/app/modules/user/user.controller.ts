@@ -4,8 +4,13 @@ import { UserServices } from './user.service';
 
 const createStudent: RequestHandler = async (req, res, next) => {
   try {
-    const { password, student } = req.body;
-    const result = await UserServices.createStudent(password, student);
+    const { password, student: studentData } = req.body;
+
+    const result = await UserServices.createStudent(
+      req.file,
+      password,
+      studentData,
+    );
 
     sendResponse(res, result, 'Student is created succesfully');
   } catch (error) {
@@ -27,7 +32,19 @@ const createFacultyMembers: RequestHandler = async (req, res, next) => {
   }
 };
 
+const createAdmin: RequestHandler = async (req, res, next) => {
+  try {
+    const { password, adminData } = req.body;
+    const result = await UserServices.createAdmin(password, adminData);
+
+    sendResponse(res, result, 'Admin created succesfully');
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const UserControllers = {
   createStudent,
   createFacultyMembers,
+  createAdmin,
 };

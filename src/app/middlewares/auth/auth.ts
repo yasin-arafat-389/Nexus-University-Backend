@@ -15,11 +15,17 @@ const auth = (...roles: string[]) => {
         throw new Error('You must login first!');
       }
 
-      // checking if the given token is valid
-      const decoded = jwt.verify(
-        token,
-        config.jwt_acess_token_secret as string,
-      ) as JwtPayload;
+      let decoded;
+
+      try {
+        // checking if the given token is valid
+        decoded = jwt.verify(
+          token,
+          config.jwt_acess_token_secret as string,
+        ) as JwtPayload;
+      } catch (error) {
+        return res.status(401).send('You are unauthorized');
+      }
 
       const { role, userId } = decoded;
 

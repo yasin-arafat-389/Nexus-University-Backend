@@ -39,10 +39,37 @@ const studentValidation = z.object({
       permanentAddress: z.string().min(1),
       guardian: guardianValidation,
       localGuardian: localGuardianValidation,
-      profileImg: z.string().url().optional(),
+      profileImg: z.string().optional(),
       admissionSemester: z.string(),
     }),
   }),
 });
 
-export const validateStudentRequest = { studentValidation };
+const studentUpdateValidation = z.object({
+  body: z.object({
+    student: z
+      .object({
+        name: userNameValidation.optional(),
+        gender: z.enum(['male', 'female']).optional(),
+        dateOfBirth: z.string().optional(),
+        email: z.string().email().optional(),
+        contactNo: z.string().min(1).optional(),
+        emergencyContactNo: z.string().min(1).optional(),
+        bloogGroup: z
+          .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+          .optional(),
+        presentAddress: z.string().min(1).optional(),
+        permanentAddress: z.string().min(1).optional(),
+        guardian: guardianValidation.optional(),
+        localGuardian: localGuardianValidation.optional(),
+        profileImg: z.string().url().optional(),
+        admissionSemester: z.string().optional(),
+      })
+      .optional(),
+  }),
+});
+
+export const validateStudentRequest = {
+  studentValidation,
+  studentUpdateValidation,
+};

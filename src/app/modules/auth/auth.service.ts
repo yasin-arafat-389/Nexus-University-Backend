@@ -2,7 +2,7 @@ import onFailure from '../../utils/onFailure/onFailure';
 import UserModel from '../user/user.model';
 import { TLoginUser } from './auth.interface';
 import bcrypt from 'bcrypt';
-import { createToken } from './auth.utils';
+import { createToken, verifyToken } from './auth.utils';
 import config from '../../config';
 import { JwtPayload } from 'jsonwebtoken';
 import jwt from 'jsonwebtoken';
@@ -66,18 +66,16 @@ const login = async (payload: TLoginUser) => {
 
 const refreshToken = async (token: string) => {
   // checking if the given token is valid
-  const decoded = jwt.verify(
-    token,
-    config.jwt_refresh_token_secret as string,
-  ) as JwtPayload;
+  const decoded = verifyToken(token, config.jwt_refresh_token_secret as string);
 
   const { userId } = decoded;
 
   // checking if the user is exist
   const user = await UserModel.findOne({ id: userId });
 
-  onFailure(user, 'This user is not found !');
-
+  if (!user) {
+    throw new Error('This user is not found !');
+  }
   // checking if the user is already deleted
   const isDeleted = user?.isDeleted;
 
@@ -93,14 +91,14 @@ const refreshToken = async (token: string) => {
   }
 
   const jwtPayload = {
-    userId: user?.id,
-    role: user?.role,
+    userId: user.id,
+    role: user.role,
   };
 
   const accessToken = createToken(
     jwtPayload,
     config.jwt_acess_token_secret as string,
-    config.jwt_refresh_token_secret as string,
+    config.access_token_expires_in as string,
   );
 
   return {
